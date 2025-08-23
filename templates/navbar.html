@@ -1,0 +1,50 @@
+<header>
+  <div class="navbar bg-base-100 shadow-sm">
+    <div class="navbar-start">
+      <a href="{% url 'accounts:home' %}" class="btn btn-ghost text-xl">AH's Finance</a>
+    </div>
+    <!-- navbar center -->
+    <div class="navbar-center hidden lg:flex">
+      {% if user.is_authenticated %}
+      <ul class="menu menu-horizontal px-1">
+        <li><a href="{% url 'accounts:home' %}" class="mr-10">Report</a></li>
+        <li><a href="{% url 'accounts:home' %}" class="mr-10">Deposit</a></li>
+        <li><a href="{% url 'accounts:home' %}" class="mr-10">Withdraw</a></li>
+        <li><a href="{% url 'accounts:home' %}" class="mr-10">Loan Details</a></li>
+      </ul>
+      {% endif %}
+    </div>
+    <!-- navbar end -->
+    <div class="navbar-end">
+      {% if user.is_authenticated %}
+      <div class="dropdown dropdown-end">
+        <div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16" />
+          </svg>
+        </div>
+        <ul tabindex="0" class="menu menu-sm dropdown-content lg:hidden bg-base-100 rounded-box z-1 mt-3 w-52 px-2 py-4 shadow">
+          <li><a href="{% url 'accounts:home' %}">Profile</a></li>
+          <li><a href="{% url 'accounts:home' %}">Report</a></li>
+          <li><a href="{% url 'accounts:home' %}">Deposit</a></li>
+          <li><a href="{% url 'accounts:home' %}">Withdraw</a></li>
+          <li><a href="{% url 'accounts:home' %}">Loan Details</a></li>
+          <li><a href="{% url 'accounts:logout' %}" class="btn btn-sm mt-2">Logout</a></li>
+        </ul>
+        <!-- end-part for large view -->
+        <div tabindex="0" role="button" class="btn btn-sm px-6 hidden lg:flex">
+          <div class="h-5">Profile</div>
+        </div>
+        <ul tabindex="0" class="menu menu-sm dropdown-content hidden lg:flex bg-base-100 rounded-box z-1 mt-3 w-52 px-2 py-4 shadow">
+          <li><a href="{% url 'accounts:home' %}"> User Details </a></li>
+          <li><a href="{% url 'accounts:logout' %}" class="btn btn-sm mt-2">Logout</a></li>
+        </ul>
+      </div>
+      {% else %}
+      <ul class="menu menu-horizontal px-1">
+        <li><a href="{% url 'accounts:login' %}" class="btn btn-sm px-6">Login</a></li>
+      </ul>
+      {% endif %}
+    </div>
+  </div>
+</header>
