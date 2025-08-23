@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %} AH's Signup Portal {% endblock %}
+
+{% load tailwind_filters %}
+{% block body %}
+<h1 class="m-15 text-center">
+    <span class="text-lg font-bold">AH's Finance</span><br />Create Your Account
+</h1>
+<div class="mx-[20%] my-4">
+  <form method="POST">
+    {% csrf_token %}
+    {{ form | crispy }}
+    <div class="flex justify-center">
+      <input class="btn bg-blue-400" type="submit" value="Register" />
+    </div>
+  </form>
+</div>
+{% endblock %}

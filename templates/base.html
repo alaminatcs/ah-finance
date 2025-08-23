@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %} AH's Finance {% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+  </head>
+
+  <body>
+    <!-- header sections -->
+    {% include 'navbar.html' %}
+    <!-- main sections -->
+    <main>
+        {% block body %}
+            <h1 class="m-10 text-center">Welcome to homepage.</h1>
+        {% endblock %}
+    </main>
+    <!-- footer sections -->
+    {% include 'footer.html' %}
+    <!-- JS script sections -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  </body>
+</html>

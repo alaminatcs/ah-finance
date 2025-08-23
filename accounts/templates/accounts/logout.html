@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %} AH's Login Portal {% endblock %}
+
+{% load tailwind_filters %}
+{% block body %}
+<h1 class="m-15 text-center"> Are you sure want to logout yourself? </h1>
+<div class="mx-[20%] my-4">
+  <form method="POST">
+    {% csrf_token %}
+    {{ form | crispy }}
+    <div class="flex justify-center">
+      <input class="btn bg-blue-400" type="submit" value="Logout" />
+    </div>
+  </form>
+</div>
+{% endblock %}
