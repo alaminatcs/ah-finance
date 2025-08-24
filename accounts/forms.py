@@ -23,7 +23,7 @@ class UserRegistrationForm(UserCreationForm):
         
         if commit == True:
             new_user.save()
-
+            
             account_type = self.cleaned_data['account_type']
             birth_date = self.cleaned_data['birth_date']
             gender = self.cleaned_data['gender']
@@ -34,7 +34,7 @@ class UserRegistrationForm(UserCreationForm):
                 account_type = account_type,
                 account_no = new_user.id + (100000 if account_type=='Savings' else 200000)
             )
-
+            
             street_address = self.cleaned_data['street_address']
             postal_code = self.cleaned_data['postal_code']
             city = self.cleaned_data['city']
@@ -47,3 +47,49 @@ class UserRegistrationForm(UserCreationForm):
                 country = country
             )
         return new_user
+
+# user update form
+class UserDataUpdateForm(forms.ModelForm):
+    account_type = forms.ChoiceField(choices=ACCOUNT_TYPE)
+    street_address = forms.CharField(max_length=100)
+    postal_code = forms.IntegerField()
+    city = forms.CharField(max_length=100)
+    country = forms.CharField(max_length=100)
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name']
+
+    def __init__(self, *args, **kwargs):
+        cur_user = kwargs['instance']
+        super().__init__(*args, **kwargs)
+        
+        if cur_user:
+            user_account = UserBankAccount.objects.get(user=cur_user)
+            # user account instance
+            if user_account:
+                self.fields['account_type'].initial = user_account.account_type
+            
+            user_address = UserAddress.objects.get(user=self.instance)
+            if user_address:
+                    self.fields['street_address'].initial = user_address.street_address
+                    self.fields['city'].initial = user_address.city
+                    self.fields['postal_code'].initial = user_address.postal_code
+                    self.fields['country'].initial = user_address.country
+
+    def save(self, commit=True):
+        cur_user = super().save(commit=False)
+
+        if commit == True:
+            cur_user.save()
+            # update or create UserBankAccount
+            user_account, _ = UserBankAccount.objects.get_or_create(user=cur_user)
+            user_account.account_type = self.cleaned_data['account_type']
+            user_account.save()
+            
+            user_address, _ = UserAddress.objects.get_or_create(user=cur_user)
+            user_address.street_address = self.cleaned_data['street_address']
+            user_address.postal_code = self.cleaned_data['postal_code']
+            user_address.city = self.cleaned_data['city']
+            user_address.country = self.cleaned_data['country']
+            user_address.save()
+        return cur_user

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %} Profile Details {% endblock title %}
+
+{% block content %}
+    {% if user.is_authenticated and user.username == request.user.username %}
+        <div class="m-4">
+            <!-- <a href="{% url 'password_update' user.username %}" class="btn btn-sm text-center mr-4">Update Password</a> -->
+            <a href="{% url 'data_update' user.username %}" class="btn btn-sm text-center mr-4">Update Profile Informations</a>
+            <!-- <a href="{% url 'author_posts' user.username %}" class="btn btn-sm text-center">Your Posts</a> -->
+        </div>
+        <div>
+            <a href="{% url 'accounts:update' %}" class="btn btn-sm font-bold text-blue-400">Edit Account Details</a>
+        </div>
+    {% endif %}
+    <br>
+    <div class="w-[60%] m-auto mockup-window bg-base-100 border border-base-300">
+        <div class="grid place-content-center h-80">
+            <p><span class="font-bold underline">Username:</span> {{ user.username }}</p>
+            <p><span class="font-bold underline">Name:</span> {{ user.first_name }} {{ user.last_name }}</p>
+            <p><span class="font-bold underline">Email Address:</span> {{ user.email }}</p>
+        </div>
+    </div>
+{% endblock content %}

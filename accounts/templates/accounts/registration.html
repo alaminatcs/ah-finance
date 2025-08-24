@@ -4,14 +4,14 @@
 {% load tailwind_filters %}
 {% block body %}
 <h1 class="m-15 text-center">
-    <span class="text-lg font-bold">AH's Finance</span><br />Create Your Account
+    <span class="text-lg font-bold">AH's Finance</span><br />{{ type }} Your Account
 </h1>
 <div class="mx-[20%] my-4">
   <form method="POST">
     {% csrf_token %}
     {{ form | crispy }}
     <div class="flex justify-center">
-      <input class="btn bg-blue-400" type="submit" value="Register" />
+      <input class="btn bg-blue-400" type="submit" value="{{ type }} Account" />
     </div>
   </form>
 </div>
