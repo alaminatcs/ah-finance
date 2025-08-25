@@ -13,7 +13,7 @@ class UserBankAccount(models.Model):
     balance = models.DecimalField(default=0, max_digits=12, decimal_places=2)
 
     def __str__(self):
-        return f"{self.user} - {self.id}"
+        return f"{self.user} - {self.user.first_name}"
 
 # User Address info    
 class UserAddress(models.Model):
@@ -24,4 +24,4 @@ class UserAddress(models.Model):
     country = models.CharField(max_length=100)
 
     def __str__(self):
-        return f"{self.user} - {self.id}"
+        return f"{self.user} - {self.user.first_name}"

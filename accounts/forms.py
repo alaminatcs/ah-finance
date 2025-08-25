@@ -18,7 +18,7 @@ class UserRegistrationForm(UserCreationForm):
             'street_address', 'postal_code', 'city', 'country', 'password1', 'password2'
         ]
     
-    def save(self, commit=True):            #customize for save 3 models data together 
+    def save(self, commit=True):            #save 3 models data together 
         new_user = super().save(commit=False)
         
         if commit == True:
@@ -32,7 +32,7 @@ class UserRegistrationForm(UserCreationForm):
                 birth_date = birth_date,
                 gender = gender,
                 account_type = account_type,
-                account_no = new_user.id + (100000 if account_type=='Savings' else 200000)
+                account_no = new_user.id + 100000
             )
             
             street_address = self.cleaned_data['street_address']
@@ -48,7 +48,7 @@ class UserRegistrationForm(UserCreationForm):
             )
         return new_user
 
-# user update form
+# user data update form
 class UserDataUpdateForm(forms.ModelForm):
     account_type = forms.ChoiceField(choices=ACCOUNT_TYPE)
     street_address = forms.CharField(max_length=100)
@@ -57,14 +57,13 @@ class UserDataUpdateForm(forms.ModelForm):
     country = forms.CharField(max_length=100)
     class Meta:
         model = User
-        fields = ['first_name', 'last_name']
+        fields = ['first_name', 'last_name', 'email']
 
     def __init__(self, *args, **kwargs):
-        cur_user = kwargs['instance']
         super().__init__(*args, **kwargs)
         
-        if cur_user:
-            user_account = UserBankAccount.objects.get(user=cur_user)
+        if self.instance:
+            user_account = UserBankAccount.objects.get(user=self.instance)
             # user account instance
             if user_account:
                 self.fields['account_type'].initial = user_account.account_type
@@ -82,11 +81,11 @@ class UserDataUpdateForm(forms.ModelForm):
         if commit == True:
             cur_user.save()
             # update or create UserBankAccount
-            user_account, _ = UserBankAccount.objects.get_or_create(user=cur_user)
+            user_account, created = UserBankAccount.objects.get_or_create(user=cur_user)
             user_account.account_type = self.cleaned_data['account_type']
             user_account.save()
             
-            user_address, _ = UserAddress.objects.get_or_create(user=cur_user)
+            user_address, created = UserAddress.objects.get_or_create(user=cur_user)
             user_address.street_address = self.cleaned_data['street_address']
             user_address.postal_code = self.cleaned_data['postal_code']
             user_address.city = self.cleaned_data['city']
