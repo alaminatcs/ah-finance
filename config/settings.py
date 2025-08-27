@@ -37,8 +37,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     'crispy_forms', 'crispy_tailwind',
     'accounts.apps.AccountsConfig',
+    'transactions.apps.TransactionsConfig',
 ]
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = 'tailwind'
