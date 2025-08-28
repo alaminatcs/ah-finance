@@ -7,17 +7,17 @@
   <table class="table-auto mx-auto w-full px-5 rounded-xl mt-8 border dark:border-neutral-500">
     <thead class="bg-purple-900 text-white text-left">
       <tr class="bg-gradient-to-tr from-indigo-600 to-purple-600 rounded-md py-2 px-4 text-white font-bold">
-        <th class="px-4 py-2">LOAN ID</th>
-        <th class="px-4 py-2">Loan Amount</th>
-        <th class="px-4 py-2">Loan Approved</th>
-        <th class="px-4 py-2">Action</th>
+        <th class="px-3 py-1">Loan ID</th>
+        <th class="px-8 py-1">Loan Amount</th>
+        <th class="px-3 py-1">Loan Approved</th>
+        <th class="px-8 py-1">Action</th>
       </tr>
     </thead>
     <tbody>
       {% for loan in loans %}
       <tr class="border-b dark:border-neutral-500">
         <td class="px-4 py-2">{{ loan.id }}</td>
-        <td class="px-4 py-3 text-s border">
+        <td class="p-3 text-s border">
           <span class="px-2 py-1 font-bold leading-tight rounded-sm text-green-700 bg-green-100">
             $ {{ loan.transaction_amount }}
           </span>

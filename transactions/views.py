@@ -12,7 +12,7 @@ from django.contrib.auth import models
 class TransactionCreateView(LoginRequiredMixin, CreateView):
     model = Transaction
     template_name = 'transactions/transaction_form.html'
-    success_url = reverse_lazy('transaction_report')
+    success_url = reverse_lazy('transactions:transaction_report')
     title = ''
 
     def get_form_kwargs(self):
@@ -86,7 +86,7 @@ class LoanRequestView(TransactionCreateView):
 class TransactionReportView(LoginRequiredMixin, ListView):
     model = Transaction
     template_name = 'transactions/transaction_report.html'
-    balance = 0 # filter korar pore ba age amar total balance ke show korbe
+    balance = 0
     
     def get_queryset(self):
         queryset = super().get_queryset().filter(account=self.request.user.account)
@@ -94,21 +94,13 @@ class TransactionReportView(LoginRequiredMixin, ListView):
         start_date_str = self.request.GET.get('start_date')
         end_date_str = self.request.GET.get('end_date')
         if start_date_str and end_date_str:
-            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
-            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+            start_date = datetime.datetime.strptime(start_date_str, '%Y-%m-%d').date()
+            end_date = datetime.datetime.strptime(end_date_str, '%Y-%m-%d').date()
             
             queryset = queryset.filter(
                 transaction_time__date__gte = start_date,
                 transaction_time__date__lte = end_date
             )
-            self.balance = Transaction.objects.filter(
-                transaction_time__date__gte = start_date,
-                transaction_time__date__lte = end_date
-            ).aggregate(total=models.Sum('transaction_amount'))['total']
-            # self.balance = queryset.aggregate(total=Transaction.Sum('transaction_amount'))['total']
-        else:
-            self.balance = self.request.user.account.balance
-       
         return queryset.distinct() # unique queryset hote hobe
     
     def get_context_data(self, **kwargs):
@@ -119,18 +111,14 @@ class TransactionReportView(LoginRequiredMixin, ListView):
 class PayLoanView(LoginRequiredMixin, View):
     def get(self, request, loan_id):
         loan = get_object_or_404(Transaction, id=loan_id)
-        # print(loan)
         if loan.loan_approve_status:
             user_account = loan.account
-                # Reduce the loan amount from the user's balance
-                # 5000, 500 + 5000 = 5500
-                # balance = 3000, loan = 5000
             if loan.transaction_amount < user_account.balance:
                 user_account.balance -= loan.transaction_amount
                 loan.balance_after_transaction = user_account.balance
                 user_account.save()
                 loan.loan_approve_status = True
-                loan.transaction_type = 'Loan_Paid'
+                loan.transaction_type = 'Loan Paid'
                 loan.save()
                 return redirect('transactions:loan_list')
             else:
