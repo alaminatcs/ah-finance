@@ -8,16 +8,16 @@
   <h1 class="font-bold text-3xl text-center pb-5 pt-2">Transaction Report</h1>
   <hr />
   
-  <form method="get" action="{% url 'transactions:transaction_report' %}" class="flex justify-center gap-2 mt-6">
-    <div class="pl-3 pr-2 bg-white border rounded-md border-gray-500 flex items-center w-1/4">
+  <form method="get" action="{% url 'transactions:transaction_report' %}" class="flex justify-around gap-2 mt-6">
+    <div class="pl-3 pr-2 bg-white border rounded-md border-gray-500 flex items-center w-[35%]">
       <label for="start_date" class="mr-2">From:</label>
       <input type="date" id="start_date" name="start_date" 
-             class="appearance-none w-full outline-none focus:outline-none" />
+             class="appearance-none w-[70%] outline-none focus:outline-none" />
     </div>
-    <div class="pl-3 pr-2 bg-white border rounded-md border-gray-500 flex items-center w-1/4">
+    <div class="pl-3 pr-2 bg-white border rounded-md border-gray-500 flex items-center w-[31%]">
       <label for="end_date" class="mr-2">To:</label>
       <input type="date" id="end_date" name="end_date"
-             class="appearance-none w-full outline-none focus:outline-none" />
+             class="appearance-none w-[80%] outline-none focus:outline-none" />
     </div>
     <div>
       <button class="bg-blue-900 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none"
