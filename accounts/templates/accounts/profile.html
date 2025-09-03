@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %} Profile Details {% endblock title %}
+{% block title %} Profile - AH's Finance {% endblock title %}
 
 {% block body %}
     {% if user.is_authenticated %}
@@ -8,17 +8,18 @@
         </div>
     {% endif %}
     <br>
-    <div class="w-[60%] m-auto mockup-window bg-base-100 border border-base-300">
+    <div class="w-[85%] lg:w-[60%] m-auto mockup-window bg-base-100 border border-base-300">
+        <h3 class="font-bold pl-5">Your Bank Account Details</h3>
         <div class="grid place-content-center h-80">
-            <p><span class="font-bold underline mr-2">Username:</span> {{ user.username }}</p>
-            <p><span class="font-bold underline mr-2">Name:</span> {{ user.first_name }} {{ user.last_name }}</p>
-            <p><span class="font-bold underline mr-2">Email Address:</span> {{ user.email }}</p> <br>
-            <h3 class="text-2xl">Account Informations:</h3>
-            <p><span class="font-bold underline mr-2">Account No:</span> {{ account.account_no }}</p>
-            <p><span class="font-bold underline mr-2">Account Type:</span> {{ account.account_type }}</p> <br>
-            <h3 class="text-2xl">Address Informations:</h3>
-            <p><span class="font-bold underline mr-2">Postal Code:</span> {{ address.postal_code }}</p>
-            <p><span class="font-bold underline mr-2">City, Country:</span> {{ address.city }}, {{ address.country }}</p>
+            <p><span class="font-bold underline">Username</span>: {{ user.username }}</p>
+            <p><span class="font-bold underline">Name</span>: {{ user.first_name }} {{ user.last_name }}</p>
+            <p><span class="font-bold underline">Email Address</span>: {{ user.email }}</p> <br>
+            <!-- <h3 class="text-2xl font-semibold">Account Informations-</h3> -->
+            <p><span class="font-bold underline">Account No</span>: {{ account.account_no }}</p>
+            <p><span class="font-bold underline">Account Type</span>: {{ account.account_type }}</p> <br>
+            <!-- <h3 class="text-2xl font-semibold">Address Informations-</h3> -->
+            <p><span class="font-bold underline">Postal Code</span>: {{ address.postal_code }}</p>
+            <p><span class="font-bold underline">City, Country</span>: {{ address.city }}, {{ address.country }}</p>
         </div>
     </div>
 {% endblock %}

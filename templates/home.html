@@ -6,7 +6,7 @@
   </p>
   <a href="{% if not user.is_authenticated %} {% url 'accounts:login' %} {% else %} {% url 'transactions:transaction_report' %} {% endif %}" 
      class="mt-6 inline-block bg-blue-400 text-white px-6 py-1 rounded-lg hover:bg-blue-700">
-    View Reports
+    See Balance Details
   </a>
 </section>
 

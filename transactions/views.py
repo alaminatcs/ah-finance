@@ -1,13 +1,12 @@
+import datetime
 from django.urls import reverse_lazy
-from django.http import HttpResponse
 from django.contrib import messages
+from django.shortcuts import get_object_or_404, redirect
 from transactions.models import Transaction
 from django.views.generic import View, CreateView, ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from transactions.forms import DepositForm, WithdrawForm, LoanRequestForm
-import datetime
-from django.shortcuts import get_object_or_404, redirect
-from django.contrib.auth import models
+
 
 class TransactionCreateView(LoginRequiredMixin, CreateView):
     model = Transaction
@@ -37,9 +36,6 @@ class DepositView(TransactionCreateView):
         amount = form.cleaned_data['transaction_amount']
         self.request.user.account.balance += amount
         self.request.user.account.save(update_fields = ['balance'])
-        
-        messages.success(self.request, f"You've deposit ${amount} successfully.")
-        
         return super().form_valid(form)
 
 class WithdrawView(TransactionCreateView):
@@ -53,10 +49,7 @@ class WithdrawView(TransactionCreateView):
     def form_valid(self, form):
         amount = form.cleaned_data['transaction_amount']
         self.request.user.account.balance -= amount
-        self.request.user.account.save(update_fields=['balance'])
-
-        messages.success(self.request, f'Successfully withdrawn {"{:,.2f}".format(float(amount))}$ from your account')
-        
+        self.request.user.account.save(update_fields=['balance'])        
         return super().form_valid(form)
 
 class LoanRequestView(TransactionCreateView):
@@ -68,25 +61,23 @@ class LoanRequestView(TransactionCreateView):
         return initial
 
     def form_valid(self, form):
-        amount = form.cleaned_data['transaction_amount']
-        current_loan_count = Transaction.objects.filter(
+        no_of_loan = Transaction.objects.filter(
             account=self.request.user.account,
-            transaction_type='Loan Request',
-            loan_approve_status = True
+            transaction_type='Loan Given', loan_approve_status=True
         ).count()
 
-        if current_loan_count >= 3:
-            return HttpResponse("You have cross the loan limits")
-            # return messages.info(self.request, "You have cross the loan limits")
+        if no_of_loan >= 2:
+            messages.error(self.request, "You've already 2 pending Loan!")
+            return redirect('transactions:loan_list')
         
-        messages.success(self.request, f'Loan request for ${amount} submitted successfully')
+        super().form_valid(form)
+        messages.success(self.request, "You're Loan request sent to the Admin") 
         
-        return super().form_valid(form)
-    
+        return redirect('transactions:loan_list')
+
 class TransactionReportView(LoginRequiredMixin, ListView):
     model = Transaction
     template_name = 'transactions/transaction_report.html'
-    balance = 0
     
     def get_queryset(self):
         queryset = super().get_queryset().filter(account=self.request.user.account)
@@ -101,37 +92,42 @@ class TransactionReportView(LoginRequiredMixin, ListView):
                 transaction_time__date__gte = start_date,
                 transaction_time__date__lte = end_date
             )
-        return queryset.distinct() # unique queryset hote hobe
+        return queryset.distinct()
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['account']  = self.request.user.account
         return context
 
-class PayLoanView(LoginRequiredMixin, View):
-    def get(self, request, loan_id):
-        loan = get_object_or_404(Transaction, id=loan_id)
-        if loan.loan_approve_status:
-            user_account = loan.account
-            if loan.transaction_amount < user_account.balance:
-                user_account.balance -= loan.transaction_amount
-                loan.balance_after_transaction = user_account.balance
-                user_account.save()
-                loan.loan_approve_status = True
-                loan.transaction_type = 'Loan Paid'
-                loan.save()
-                return redirect('transactions:loan_list')
-            else:
-                messages.error(self.request, f'Loan amount is greater than available balance')
-
-        return redirect('loan_list')
-
 class LoanListView(LoginRequiredMixin,ListView):
     model = Transaction
     template_name = 'transactions/loan_request.html'
-    context_object_name = 'loans' # loan list ta ei loans context er moddhe thakbe
     
     def get_queryset(self):
         user_account = self.request.user.account
-        queryset = Transaction.objects.filter(account=user_account,transaction_type='Loan Request')
+        # queryset = Transaction.objects.filter(account=user_account, transaction_type__in=['Loan Request', 'Loan Given'])
+        queryset = Transaction.objects.filter(account=user_account, transaction_type__icontains='Loan')
         return queryset
+
+class LoanPayView(LoginRequiredMixin, View):
+    def get(self, request, loan_id):
+        loan = get_object_or_404(Transaction, id=loan_id)
+        if loan.loan_approve_status and loan.transaction_type=='Loan Given':
+            user_account = loan.account
+            if loan.transaction_amount <= user_account.balance:
+                user_account.balance -= loan.transaction_amount
+                user_account.save()
+
+                Transaction.objects.create(
+                    account = user_account,
+                    transaction_type = 'Loan Paid',
+                    transaction_amount = loan.transaction_amount,
+                    balance_after_transaction = user_account.balance,
+                    loan_approve_status = True
+                )
+                loan.loan_approve_status = False
+                loan.save()
+                messages.success(self.request, "Loan paid successfully!")
+            else:
+                messages.error(request, 'Remains not enough balance to pay Loan!')
+        return redirect('transactions:loan_list')

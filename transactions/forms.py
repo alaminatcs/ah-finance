@@ -4,16 +4,17 @@ from .models import Transaction
 class TransactionForm(forms.ModelForm):
     class Meta:
         model = Transaction
-        fields = ['transaction_amount', 'transaction_type']
+        fields = ['transaction_type', 'transaction_amount']
 
     def __init__(self, *args, **kwargs):
         self.account = kwargs.pop('account', None)
         if self.account is None:
-            raise ValueError("TransactionForm requires 'account' kwarg")
+            raise ValueError("Required an account for TransactionForm")
 
         super().__init__(*args, **kwargs)
-        # self.fields['transaction_type'].disabled = True
-        self.fields['transaction_type'].widget = forms.HiddenInput()
+        self.fields['transaction_type'].disabled = True
+        # self.fields['transaction_type'].widget = forms.HiddenInput()
+        self.fields['transaction_type'].widget.attrs = {'style': 'opacity:0.2;'}
 
     def save(self, commit=True):
         self.instance.account = self.account
@@ -41,6 +42,8 @@ class WithdrawForm(TransactionForm):
 class LoanRequestForm(TransactionForm):
     def clean_transaction_amount(self):
         amount = self.cleaned_data['transaction_amount']
+        if amount < 50000:
+            raise forms.ValidationError('You can request for loan at least $50000')
         if amount > 500000:
-            raise forms.ValidationError('You can request loan at most $500000')
+            raise forms.ValidationError('You can request for loan at most $500000')
         return amount

@@ -1,6 +1,6 @@
-from .models import User, UserBankAccount, UserAddress, ACCOUNT_TYPE, GENDER_TYPE
-from django.contrib.auth.forms import UserCreationForm
 from django import forms
+from django.contrib.auth.forms import UserCreationForm
+from .models import User, UserBankAccount, UserAddress, ACCOUNT_TYPE, GENDER_TYPE
 
 class UserRegistrationForm(UserCreationForm):
     account_type = forms.ChoiceField(choices=ACCOUNT_TYPE)
@@ -9,8 +9,7 @@ class UserRegistrationForm(UserCreationForm):
     street_address = forms.CharField(max_length=100)
     postal_code = forms.IntegerField()
     city = forms.CharField(max_length=100)
-    country = forms.CharField(max_length=100)
-    
+    country = forms.CharField(max_length=100)  
     class Meta:
         model = User
         fields = [
@@ -48,7 +47,6 @@ class UserRegistrationForm(UserCreationForm):
             )
         return new_user
 
-# user data update form
 class UserDataUpdateForm(forms.ModelForm):
     account_type = forms.ChoiceField(choices=ACCOUNT_TYPE)
     street_address = forms.CharField(max_length=100)

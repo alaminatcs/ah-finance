@@ -4,12 +4,12 @@ from django.urls import reverse_lazy
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout
 from django.contrib.auth.views import LoginView
-from django.views.generic import View, FormView, DetailView, UpdateView
+from django.views.generic import TemplateView, View, FormView, DetailView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-# Create your views here.
-def welcome_note(request):
-    return render(request, 'base.html')
+
+class HomeView(LoginRequiredMixin, TemplateView):
+    template_name = 'base.html'
 
 class UserSignup(FormView):
     form_class = UserRegistrationForm
@@ -50,7 +50,6 @@ class ProfileDetails(LoginRequiredMixin, DetailView):
         context['account'] = getattr(self.object, 'account', None)
         context['address'] = getattr(self.object, 'address', None)
         return context
-
 
 class UserDataUpdate(LoginRequiredMixin, UpdateView):
     form_class = UserDataUpdateForm

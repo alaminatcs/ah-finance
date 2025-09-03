@@ -5,7 +5,6 @@
 {% block body %}
 <div class="w-full flex mt-5 justify-center">
   <div class="bg-white w-5/12 rounded-lg p-8 shadow-md">
-    
     {% if title == 'Loan Request' %}
       <div class="mb-4">
         <a class="font-bold text-blue-700 hover:underline"
@@ -20,8 +19,7 @@
       {{ form|crispy }}
       
       <div class="flex w-full justify-center">
-        <button class="bg-blue-900 text-white hover:text-blue-900 hover:bg-white border border-blue-900 font-bold px-6 py-1 rounded-lg"
-                type="submit">
+        <button class="bg-blue-900 text-white hover:text-blue-900 hover:bg-white border border-blue-900 font-bold px-6 py-1 rounded-lg" type="submit">
           Submit
         </button>
       </div>
