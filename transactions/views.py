@@ -36,6 +36,7 @@ class DepositView(TransactionCreateView):
         amount = form.cleaned_data['transaction_amount']
         self.request.user.account.balance += amount
         self.request.user.account.save(update_fields = ['balance'])
+        
         return super().form_valid(form)
 
 class WithdrawView(TransactionCreateView):
