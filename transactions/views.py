@@ -6,7 +6,9 @@ from transactions.models import Transaction
 from django.views.generic import View, CreateView, ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from transactions.forms import DepositForm, WithdrawForm, LoanRequestForm
-
+from django.core.mail import send_mail
+import environ
+env = environ.Env()
 
 class TransactionCreateView(LoginRequiredMixin, CreateView):
     model = Transaction
@@ -36,8 +38,24 @@ class DepositView(TransactionCreateView):
         amount = form.cleaned_data['transaction_amount']
         self.request.user.account.balance += amount
         self.request.user.account.save(update_fields = ['balance'])
+
+        response = super().form_valid(form)
+
+        send_mail(
+            subject = 'Transaction Type - Deposit',
+            from_email = env('EMAIL_HOST_USER'),
+            recipient_list = [self.request.user.email, ],
+            
+            message = f'''
+            Hello {self.request.user.first_name},
+            You've successfully deposited ${amount} into your account.
+                -Balance After Transaction: ${self.request.user.account.balance}
+            __
+            Regards,
+            AH-Finance'''
+        )
         
-        return super().form_valid(form)
+        return response
 
 class WithdrawView(TransactionCreateView):
     form_class = WithdrawForm
@@ -50,8 +68,25 @@ class WithdrawView(TransactionCreateView):
     def form_valid(self, form):
         amount = form.cleaned_data['transaction_amount']
         self.request.user.account.balance -= amount
-        self.request.user.account.save(update_fields=['balance'])        
-        return super().form_valid(form)
+        self.request.user.account.save(update_fields=['balance'])
+
+        response = super().form_valid(form)
+        
+        send_mail(
+            subject = 'Transaction Type - Withdraw',
+            from_email = env('EMAIL_HOST_USER'),
+            recipient_list = [self.request.user.email, ],
+            
+            message = f'''
+            Hello {self.request.user.first_name},
+            You've successfully withdrawn ${amount} from your account.
+                -Balance After Transaction: ${self.request.user.account.balance}
+            __
+            Regards,
+            AH-Finance''',
+        )
+
+        return response
 
 class LoanRequestView(TransactionCreateView):
     form_class = LoanRequestForm
@@ -62,19 +97,34 @@ class LoanRequestView(TransactionCreateView):
         return initial
 
     def form_valid(self, form):
-        no_of_loan = Transaction.objects.filter(
+        no_of_pending_loan = Transaction.objects.filter(
             account=self.request.user.account,
             transaction_type='Loan Given', loan_approve_status=True
         ).count()
 
-        if no_of_loan >= 2:
+        if no_of_pending_loan >= 2:
             messages.error(self.request, "You've already 2 pending Loan!")
             return redirect('transactions:loan_list')
         
-        super().form_valid(form)
-        messages.success(self.request, "You're Loan request sent to the Admin") 
+        response = super().form_valid(form)
         
-        return redirect('transactions:loan_list')
+        send_mail(
+            subject = 'Transaction Type - Loan Request',
+            from_email = env('EMAIL_HOST_USER'),
+            recipient_list = [self.request.user.email, ],
+
+            message = f'''
+            Hello {self.request.user.first_name},
+            You're Loan request sent to Admin.
+                -Loan Id: {self.object.id}
+                -Loan Amount: ${self.object.transaction_amount}
+            __
+            Regards,
+            AH-Finance'''
+        )
+        # messages.success(self.request, "You're Loan request sent to the Admin") 
+
+        return response
 
 class TransactionReportView(LoginRequiredMixin, ListView):
     model = Transaction
@@ -126,9 +176,25 @@ class LoanPayView(LoginRequiredMixin, View):
                     balance_after_transaction = user_account.balance,
                     loan_approve_status = True
                 )
+
+                send_mail(
+                    subject = 'Transaction Type - Loan Paid',
+                    from_email = env('EMAIL_HOST_USER'),
+                    recipient_list = [self.request.user.email, ],
+
+                    message = f'''
+                    Hello {self.request.user.first_name},
+                    You've Paid ${loan.transaction_amount} for Loan Id- {loan_id}.
+                        -Balance After Loan Revceived: ${user_account.balance}
+                    __
+                    Regards,
+                    AH-Finance'''
+                )
+                # messages.success(self.request, "Loan paid successfully!")
+
                 loan.loan_approve_status = False
                 loan.save()
-                messages.success(self.request, "Loan paid successfully!")
             else:
                 messages.error(request, 'Remains not enough balance to pay Loan!')
+        
         return redirect('transactions:loan_list')
