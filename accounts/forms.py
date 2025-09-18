@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from .models import User, UserBankAccount, UserAddress, ACCOUNT_TYPE, GENDER_TYPE
 
+# signup form
 class UserRegistrationForm(UserCreationForm):
     account_type = forms.ChoiceField(choices=ACCOUNT_TYPE)
     birth_date = forms.CharField(widget=forms.DateInput(attrs={'type': 'date'}))
@@ -47,6 +48,7 @@ class UserRegistrationForm(UserCreationForm):
             )
         return new_user
 
+# profile update form
 class UserDataUpdateForm(forms.ModelForm):
     account_type = forms.ChoiceField(choices=ACCOUNT_TYPE)
     street_address = forms.CharField(max_length=100)

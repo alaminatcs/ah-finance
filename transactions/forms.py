@@ -1,6 +1,7 @@
 from django import forms
 from .models import Transaction
 
+# parent class of each type of transaction form
 class TransactionForm(forms.ModelForm):
     class Meta:
         model = Transaction
@@ -21,6 +22,7 @@ class TransactionForm(forms.ModelForm):
         self.instance.balance_after_transaction = self.account.balance
         return super().save(commit=commit)
 
+# deposit form
 class DepositForm(TransactionForm):
     def clean_transaction_amount(self):
         amount = self.cleaned_data['transaction_amount']
@@ -28,6 +30,7 @@ class DepositForm(TransactionForm):
             raise forms.ValidationError('You need to deposit at least $500')
         return amount
 
+# withdraw form
 class WithdrawForm(TransactionForm):
     def clean_transaction_amount(self):
         amount = self.cleaned_data['transaction_amount']
@@ -39,6 +42,7 @@ class WithdrawForm(TransactionForm):
             raise forms.ValidationError("You don't have sufficient balance")
         return amount
 
+# loan request form
 class LoanRequestForm(TransactionForm):
     def clean_transaction_amount(self):
         amount = self.cleaned_data['transaction_amount']

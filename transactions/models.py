@@ -2,7 +2,7 @@ from django.db import models
 from accounts.models import UserBankAccount
 from .constants import TRANSACTION_TYPE
 
-
+# transaction model
 class Transaction(models.Model):
     account = models.ForeignKey(UserBankAccount, on_delete=models.CASCADE, related_name='transactions')
     

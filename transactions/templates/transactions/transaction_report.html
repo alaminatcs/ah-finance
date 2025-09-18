@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-<!-- {% load static %} -->
+<!-- load humanize to display amount with human readble way -->
 {% load humanize %}
 {% block title %}Transaction Repor - AH's Financet{% endblock %}
 
@@ -10,11 +10,13 @@
         <p><span class="font-bold underline mr-2">Balance:</span> ${{ account.balance|floatformat:2|intcomma }}</p>
     </div>
 </div>
+
 <!-- details transactions report -->
 <div class="my-5 py-3 px-4 bg-white rounded-xl shadow-md">
   <h1 class="font-bold text-3xl text-center pb-5 pt-2">Transaction Report</h1>
   <hr />
-  <!-- filter form -->
+
+  <!-- transactions lists filter according to date range -->
   <form method="GET" action="{% url 'transactions:transaction_report' %}" class="flex justify-around gap-2 mt-6">
     <div class="pl-3 pr-2 bg-white border rounded-md border-gray-500 flex items-center w-[35%]">
       <label for="start_date" class="mr-2">From:</label>
@@ -30,7 +32,8 @@
       </button>
     </div>
   </form>
-  <!-- report table -->
+
+  <!-- transactions report table -->
   <table class="table-auto mx-auto w-full px-2 rounded-xl mt-8 border dark:border-neutral-500 text-center">
     <thead class="bg-blue-600 text-white">
       <tr class="bg-gradient-to-tr from-blue-400 to-blue-900 rounded-md py-2 font-bold border">
@@ -41,6 +44,7 @@
       </tr>
     </thead>
     <tbody>
+      <!-- transactions list -->
       {% for transaction in object_list %}
       <tr class="border-b dark:border-neutral-500">
         <td class="px-1 py-2">{{ transaction.transaction_time|date:"F d, Y h:i A" }}</td>
@@ -54,9 +58,11 @@
             {{ transaction.transaction_type }}
           </span>
         </td>
+        <!-- humanize amount for better readability -->
         <td class="px-1 py-2 border">${{ transaction.transaction_amount|floatformat:2|intcomma }}</td>
         <td class="px-1 py-2">$ {{ transaction.balance_after_transaction|floatformat:2|intcomma }}</td>
       </tr>
+      <!-- if there is no transactions -->
       {% empty %}
         <tr><td colspan="4" class="text-center py-4">No transactions found.</td></tr>
       {% endfor %}

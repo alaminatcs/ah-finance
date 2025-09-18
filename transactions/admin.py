@@ -1,8 +1,9 @@
+import environ
+env = environ.Env()
 from django.contrib import admin
 from .models import Transaction
 from django.core.mail import send_mail
-import environ
-env = environ.Env()
+from django.contrib.humanize.templatetags.humanize import intcomma
 
 @admin.register(Transaction)
 class TransactionAdmin(admin.ModelAdmin):
@@ -13,7 +14,8 @@ class TransactionAdmin(admin.ModelAdmin):
             obj.account.balance += obj.transaction_amount
             obj.account.save()
 
-            Transaction.objects.create(
+            # create a transaction for given loan
+            loan = Transaction.objects.create(
                 account = obj.account,
                 transaction_type = 'Loan Given',
                 transaction_amount = obj.transaction_amount,
@@ -21,6 +23,7 @@ class TransactionAdmin(admin.ModelAdmin):
                 loan_approve_status = True
             )
 
+            # transaction mail send
             send_mail(
                 subject = 'Transaction Type - Loan Given',
                 from_email = env('EMAIL_HOST_USER'),
@@ -29,9 +32,9 @@ class TransactionAdmin(admin.ModelAdmin):
                 message = f'''
                 Hello {obj.account.user.first_name},
                 You're Loan request Approved by Admin.
-                    -Loan Id- {obj.id}
-                    -Loan Amount Given- ${obj.transaction_amount}
-                    -Balance After Loan Revceived: ${obj.account.balance}
+                    -Loan Id: {loan.id}
+                    -Loan Amount Given: ${intcomma(loan.transaction_amount)}
+                    -Balance After Loan Revceived: ${intcomma(loan.balance_after_transaction)}
                 __
                 Regards,
                 AH-Finance'''

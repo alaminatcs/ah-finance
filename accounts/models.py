@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from .constants import ACCOUNT_TYPE, GENDER_TYPE
 
-
+# bank account model
 class UserBankAccount(models.Model):
     user = models.OneToOneField(User, related_name='account', on_delete=models.CASCADE)
     gender = models.CharField(max_length=20, choices=GENDER_TYPE)
@@ -15,6 +15,7 @@ class UserBankAccount(models.Model):
     def __str__(self):
         return f"{self.user} - {self.user.first_name}"
 
+# address model
 class UserAddress(models.Model):
     user = models.OneToOneField(User, related_name='address', on_delete=models.CASCADE)
     street_address = models.CharField(max_length=100)

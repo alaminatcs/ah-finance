@@ -1,15 +1,17 @@
 import datetime
-from django.urls import reverse_lazy
-from django.contrib import messages
-from django.shortcuts import get_object_or_404, redirect
-from transactions.models import Transaction
-from django.views.generic import View, CreateView, ListView
-from django.contrib.auth.mixins import LoginRequiredMixin
-from transactions.forms import DepositForm, WithdrawForm, LoanRequestForm
-from django.core.mail import send_mail
 import environ
 env = environ.Env()
+from django.contrib import messages
+from django.urls import reverse_lazy
+from django.core.mail import send_mail
+from transactions.models import Transaction
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import View, CreateView, ListView
+from django.contrib.humanize.templatetags.humanize import intcomma
+from transactions.forms import DepositForm, WithdrawForm, LoanRequestForm
 
+# parent class for all type of transactions view
 class TransactionCreateView(LoginRequiredMixin, CreateView):
     model = Transaction
     template_name = 'transactions/transaction_form.html'
@@ -26,6 +28,7 @@ class TransactionCreateView(LoginRequiredMixin, CreateView):
         context['title'] = self.title
         return context
 
+# deposit view
 class DepositView(TransactionCreateView):
     form_class = DepositForm
     title = 'Deposit'
@@ -41,6 +44,7 @@ class DepositView(TransactionCreateView):
 
         response = super().form_valid(form)
 
+        # send deposit mail
         send_mail(
             subject = 'Transaction Type - Deposit',
             from_email = env('EMAIL_HOST_USER'),
@@ -48,8 +52,8 @@ class DepositView(TransactionCreateView):
             
             message = f'''
             Hello {self.request.user.first_name},
-            You've successfully deposited ${amount} into your account.
-                -Balance After Transaction: ${self.request.user.account.balance}
+            You've successfully deposited ${intcomma(amount)} into your account.
+                -Balance After Transaction: ${intcomma(self.request.user.account.balance)}
             __
             Regards,
             AH-Finance'''
@@ -57,6 +61,7 @@ class DepositView(TransactionCreateView):
         
         return response
 
+# withdraw view
 class WithdrawView(TransactionCreateView):
     form_class = WithdrawForm
     title = 'Withdraw'
@@ -72,6 +77,7 @@ class WithdrawView(TransactionCreateView):
 
         response = super().form_valid(form)
         
+        # send withdraw mail
         send_mail(
             subject = 'Transaction Type - Withdraw',
             from_email = env('EMAIL_HOST_USER'),
@@ -79,8 +85,8 @@ class WithdrawView(TransactionCreateView):
             
             message = f'''
             Hello {self.request.user.first_name},
-            You've successfully withdrawn ${amount} from your account.
-                -Balance After Transaction: ${self.request.user.account.balance}
+            You've successfully withdrawn ${intcomma(amount)} from your account.
+                -Balance After Transaction: ${intcomma(self.request.user.account.balance)}
             __
             Regards,
             AH-Finance''',
@@ -88,6 +94,7 @@ class WithdrawView(TransactionCreateView):
 
         return response
 
+# loan request view
 class LoanRequestView(TransactionCreateView):
     form_class = LoanRequestForm
     title = 'Loan Request'
@@ -108,6 +115,7 @@ class LoanRequestView(TransactionCreateView):
         
         response = super().form_valid(form)
         
+        # send loan request mail
         send_mail(
             subject = 'Transaction Type - Loan Request',
             from_email = env('EMAIL_HOST_USER'),
@@ -116,8 +124,7 @@ class LoanRequestView(TransactionCreateView):
             message = f'''
             Hello {self.request.user.first_name},
             You're Loan request sent to Admin.
-                -Loan Id: {self.object.id}
-                -Loan Amount: ${self.object.transaction_amount}
+                -Requested Loan Amount: ${intcomma(self.object.transaction_amount)}
             __
             Regards,
             AH-Finance'''
@@ -126,6 +133,7 @@ class LoanRequestView(TransactionCreateView):
 
         return response
 
+# transaction report view
 class TransactionReportView(LoginRequiredMixin, ListView):
     model = Transaction
     template_name = 'transactions/transaction_report.html'
@@ -135,6 +143,7 @@ class TransactionReportView(LoginRequiredMixin, ListView):
         
         start_date_str = self.request.GET.get('start_date')
         end_date_str = self.request.GET.get('end_date')
+        # if date range filter applied
         if start_date_str and end_date_str:
             start_date = datetime.datetime.strptime(start_date_str, '%Y-%m-%d').date()
             end_date = datetime.datetime.strptime(end_date_str, '%Y-%m-%d').date()
@@ -150,6 +159,7 @@ class TransactionReportView(LoginRequiredMixin, ListView):
         context['account']  = self.request.user.account
         return context
 
+# loan list view
 class LoanListView(LoginRequiredMixin,ListView):
     model = Transaction
     template_name = 'transactions/loan_request.html'
@@ -160,6 +170,7 @@ class LoanListView(LoginRequiredMixin,ListView):
         queryset = Transaction.objects.filter(account=user_account, transaction_type__icontains='Loan')
         return queryset
 
+# loan pay view
 class LoanPayView(LoginRequiredMixin, View):
     def get(self, request, loan_id):
         loan = get_object_or_404(Transaction, id=loan_id)
@@ -169,6 +180,7 @@ class LoanPayView(LoginRequiredMixin, View):
                 user_account.balance -= loan.transaction_amount
                 user_account.save()
 
+                # create a transaction for loan paid
                 Transaction.objects.create(
                     account = user_account,
                     transaction_type = 'Loan Paid',
@@ -177,6 +189,7 @@ class LoanPayView(LoginRequiredMixin, View):
                     loan_approve_status = True
                 )
 
+                # send loan paid mail
                 send_mail(
                     subject = 'Transaction Type - Loan Paid',
                     from_email = env('EMAIL_HOST_USER'),
@@ -184,8 +197,8 @@ class LoanPayView(LoginRequiredMixin, View):
 
                     message = f'''
                     Hello {self.request.user.first_name},
-                    You've Paid ${loan.transaction_amount} for Loan Id- {loan_id}.
-                        -Balance After Loan Revceived: ${user_account.balance}
+                    You've Paid ${intcomma(loan.transaction_amount)} for Loan Id-{loan_id}.
+                        -Balance After Loan Paid: ${intcomma(user_account.balance)}
                     __
                     Regards,
                     AH-Finance'''

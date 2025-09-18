@@ -1,8 +1,10 @@
 <header>
   <div class="navbar bg-base-100 shadow-sm">
+    <!-- navbar start -->
     <div class="navbar-start">
       <a href="{% url 'accounts:home' %}" class="btn btn-ghost text-xl">AH's Finance</a>
     </div>
+
     <!-- navbar center -->
     <div class="navbar-center hidden lg:flex">
       {% if user.is_authenticated %}
@@ -14,10 +16,12 @@
       </ul>
       {% endif %}
     </div>
+
     <!-- navbar end -->
     <div class="navbar-end">
       {% if user.is_authenticated %}
       <div class="dropdown dropdown-end">
+        <!-- end-part for small width view -->
         <div tabindex="0" role="button" class="btn btn-ghost lg:hidden">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16" />
@@ -31,7 +35,8 @@
           <li><a href="{% url 'transactions:loan_request' %}">Loan Request</a></li>
           <li><a href="{% url 'accounts:logout' %}" class="btn btn-sm mt-2">Logout</a></li>
         </ul>
-        <!-- end-part for large view -->
+
+        <!-- end-part for large width view -->
         <div tabindex="0" role="button" class="btn btn-sm px-6 hidden lg:flex">
           <div class="h-5">Profile</div>
         </div>

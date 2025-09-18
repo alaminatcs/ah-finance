@@ -1,16 +1,17 @@
 from django.shortcuts import redirect
-from accounts.forms import UserRegistrationForm, UserDataUpdateForm
 from django.urls import reverse_lazy
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout
 from django.contrib.auth.views import LoginView
-from django.views.generic import TemplateView, View, FormView, DetailView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from accounts.forms import UserRegistrationForm, UserDataUpdateForm
+from django.views.generic import TemplateView, View, FormView, DetailView, UpdateView
 
-
+# home view
 class HomeView(TemplateView):
     template_name = 'base.html'
 
+# signup view
 class UserSignup(FormView):
     form_class = UserRegistrationForm
     template_name = 'accounts/registration.html'
@@ -26,17 +27,20 @@ class UserSignup(FormView):
         context['type'] = 'Create'
         return context
 
+# login view
 class UserLogin(LoginView):
     template_name = 'accounts/login.html'
     
     def get_success_url(self):
         return reverse_lazy('accounts:home')
 
+# logout view
 class UserLogout(LoginRequiredMixin, View):    
     def get(self, request):
         logout(request)
         return redirect('accounts:login')
 
+# profile details view
 class ProfileDetails(LoginRequiredMixin, DetailView):
     model = User
     template_name = 'accounts/profile.html'
@@ -51,6 +55,7 @@ class ProfileDetails(LoginRequiredMixin, DetailView):
         context['address'] = getattr(self.object, 'address', None)
         return context
 
+# profile update view
 class UserDataUpdate(LoginRequiredMixin, UpdateView):
     form_class = UserDataUpdateForm
     template_name = 'accounts/registration.html'

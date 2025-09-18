@@ -2,6 +2,7 @@
 {% block title %}Loan List - AH's Finance{% endblock %}
 {% block body %}
 <div class="my-10 py-3 px-4 bg-white rounded-xl shadow-md">
+  <!-- message show -->
   {% if messages %}
     <div class="my-4">
       {% for message in messages %}
@@ -25,6 +26,7 @@
         <th class="px-8 py-1">Action</th>
       </tr>
     </thead>
+
     <tbody>
       {% for loan in object_list %}
       <tr class="border-b dark:border-neutral-500">
@@ -36,6 +38,7 @@
           </span>
         </td>
         
+        <!-- loan approval status -->
         <td class="px-4 py-2">
           {% if loan.transaction_type == "Loan Request" %}
             {{ loan.loan_approve_status | yesno:"Approved, Pending" }}
@@ -43,6 +46,8 @@
             Approved
           {% endif %}
         </td>
+
+        <!-- loan action status -->
         <td class="px-4 py-2">
           {% if loan.transaction_type == 'Loan Given' and loan.loan_approve_status %}
             <a class="font-bold bg-red-600 text-white hover:text-white hover:bg-green-900 border border-blue-900 px-8 py-1 rounded-lg"
@@ -54,6 +59,7 @@
           {% endif %}
         </td>
       </tr>
+      <!-- if there is no loan request yet -->
       {% empty %}
       <tr><td colspan="4" class="text-center py-4">No loan records found.</td></tr>
       {% endfor %}

@@ -153,4 +153,3 @@ flowchart TD
 ## Screenshots:
 
 ![Front Page](https://i.ibb.co.com/SDbXX0zS/Screenshot-from-2025-09-11-19-54-46.png)
-

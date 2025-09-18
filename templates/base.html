@@ -10,14 +10,17 @@
   <body>
     <!-- header sections -->
     {% include 'navbar.html' %}
+
     <!-- main sections -->
     <main>
         {% block body %}
             {% include 'home.html' %}
         {% endblock %}
     </main>
+
     <!-- footer sections -->
     {% include 'footer.html' %}
+    
     <!-- JS script sections -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   </body>
